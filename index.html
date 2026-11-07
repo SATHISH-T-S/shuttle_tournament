@@ -159,15 +159,19 @@ function closeModal(){document.getElementById('modal').hidden=true}
 function exitToSetup(){S.started=false;S.matches=[];S.waiting=[];S.teams=S.teams.filter(t=>!t.out);save();tab='teams';closeModal();render()}
 function setMode(m){if(S.started)return;S.mode=m;save();render()}
 function setBest(v){if(S.started)return;S.bestOf=+v;save()}
-function setMoney(k,v){S[k]=Math.max(0,+v||0);save();render()}
-function setPaid(id,v){const t=T(id);if(t){t.paid=v;save();render()}}
-function moneyCard(){
+function moneySum(){
   const n=S.teams.length,paid=S.teams.filter(t=>t.paid).length;
   const exp=n*S.fee,col=paid*S.fee,pr=S.p1+S.p2;
-  const f=(k,l)=>`<label class="fld">${l}<input type="number" min="0" inputmode="numeric" value="${S[k]}" onchange="setMoney('${k}',this.value)"></label>`;
-  return `<div class="card"><h2>Entry fee &amp; prizes</h2><div class="row">${f('fee','Entry fee per team (₹)')}${f('p1','1st prize (₹)')}${f('p2','2nd prize (₹)')}</div>
-  <p class="note">Teams: ${n} · Fee to collect: ₹${exp} · Collected (${paid} paid): ₹${col} · Pending: ₹${exp-col}</p>
-  <p class="note">Prizes: ₹${pr} · Balance after prizes (collected − prizes): <b class="${col-pr>=0?'pos':'neg'}">₹${col-pr}</b>. Tick "Paid" on each team when the fee is received.</p></div>`;
+  return `<p class="note">Teams: ${n} · Fee to collect: ₹${exp} · Collected (${paid} paid): ₹${col} · Pending: ₹${exp-col}</p>
+  <p class="note">Prizes: ₹${S.p1} + ₹${S.p2} = ₹${pr} · Balance after prizes (collected − prizes): <b class="${col-pr>=0?'pos':'neg'}">₹${col-pr}</b></p>`;
+}
+function setMoney(k,v){S[k]=Math.max(0,parseInt(v,10)||0);save();const e=document.getElementById('msum');if(e)e.innerHTML=moneySum()}
+function setPaid(id,v){const t=T(id);if(t){t.paid=v;save();const e=document.getElementById('msum');if(e)e.innerHTML=moneySum()}}
+function moneyCard(){
+  const f=(k,l)=>`<label class="fld">${l}<input type="number" min="0" inputmode="numeric" value="${S[k]}" oninput="setMoney('${k}',this.value)"></label>`;
+  return `<div class="card"><h2>Entry fee &amp; prizes</h2><p class="note" style="margin:0 0 8px">Tap any amount to change it. It saves and updates instantly, even after the tournament starts.</p>
+  <div class="row">${f('fee','Entry fee per team (₹)')}${f('p1','1st prize (₹)')}${f('p2','2nd prize (₹)')}</div>
+  <div id="msum">${moneySum()}</div><p class="note">Tick "Paid" on each team when the fee is received.</p></div>`;
 }
 function result(){
   if(!S.started||!S.matches.length||S.waiting.length||S.matches.some(m=>!m.done))return null;
