@@ -70,7 +70,7 @@ tbody tr:nth-child(1) td:first-child{background:var(--shuttle);color:#3a2e00;fon
 .bar .btn{background:#14281d;color:#fff}.bar .btn.alt{background:transparent;color:#3a2e00;border:1px solid #3a2e00}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px;z-index:99}
 .modal[hidden]{display:none}.modal .box{background:var(--card);border-radius:14px;padding:20px;max-width:380px;width:100%}
-.modal .row .btn{flex:1}
+.modal .row{flex-direction:column;align-items:stretch}.modal .row .btn{width:100%}
 .fld{display:grid;gap:4px;font-size:.8rem;color:var(--mute);flex:1 1 130px}.fld input{width:100%}
 .paid{display:flex;gap:6px;align-items:center;font-weight:700;font-size:.85rem}.paid input{width:auto}
 </style>
@@ -89,8 +89,11 @@ tbody tr:nth-child(1) td:first-child{background:var(--shuttle);color:#3a2e00;fon
 </header>
 <main id="app"></main>
 <div id="modal" class="modal" hidden><div class="box"><h2>Tournament in progress</h2>
-<p>Continue to keep all scores and fixtures. Exit clears the fixtures and scores and takes you back to the Shuffle &amp; start page (teams are kept).</p>
-<div class="row"><button class="btn" onclick="closeModal()">Continue</button><button class="btn del" onclick="exitToSetup()">Exit</button></div></div></div>
+<p>The page was refreshed. What do you want to do?</p>
+<div class="row"><button class="btn" onclick="closeModal()">Continue (keep scores)</button>
+<button class="btn alt" onclick="reshuffle()">Reshuffle the matches</button>
+<button class="btn del" onclick="exitTournament()">Exit tournament</button></div>
+<p class="note">Reshuffle: same teams, new fixtures, scores cleared.<br>Exit: back to the Shuffle &amp; start page, scores cleared, teams kept.</p></div></div>
 
 <script>
 const MAX=14, KEY='bt_state_v1';
@@ -156,6 +159,11 @@ function confirmM(id){S.matches.find(x=>x.id===id).confirmed=true;save();render(
 function later(id){const i=S.matches.findIndex(x=>x.id===id);const[m]=S.matches.splice(i,1);S.matches.push(m);save();render()}
 function goAdd(){tab='teams';render();setTimeout(()=>document.getElementById('tn').focus(),0)}
 function closeModal(){document.getElementById('modal').hidden=true}
+function reshuffle(){
+  if(!confirm('Reshuffle will clear all scores and make new fixtures with the same teams. Continue?'))return;
+  S.started=false;S.matches=[];S.waiting=[];S.teams=S.teams.filter(t=>!t.out);closeModal();startTournament();
+}
+function exitTournament(){if(confirm('Exit the tournament? Scores and fixtures will be cleared. Teams are kept.'))exitToSetup()}
 function exitToSetup(){S.started=false;S.matches=[];S.waiting=[];S.teams=S.teams.filter(t=>!t.out);save();tab='teams';closeModal();render()}
 function setMode(m){if(S.started)return;S.mode=m;save();render()}
 function setBest(v){if(S.started)return;S.bestOf=+v;save()}
