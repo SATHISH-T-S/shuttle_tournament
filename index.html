@@ -232,16 +232,26 @@ function liveBar(m){
   return `<div class="bar"><b>Match in progress: ${esc(a.name)} vs ${esc(b.name)}</b><div>Finish this match in Score. Then start the next one.</div><div class="row"><button class="btn" onclick="tab='score';render();window.scrollTo(0,0)">Go to Score</button></div></div>`;
 }
 function nextBar(){
-  const m=S.matches.find(x=>!x.done&&!x.bye&&!x.confirmed&&!x.games.some(g=>g[0]+g[1]>0));
+  const m=upNext();
   if(!m)return'';
   const a=T(m.a),b=T(m.b);
   return `<div class="bar"><b>Next match: ${esc(a.name)} vs ${esc(b.name)}</b>
   <div>${esc(a.p1)} &amp; ${esc(a.p2)} · ${esc(b.p1)} &amp; ${esc(b.p2)}</div>
   <div>Have both teams come? Shall we start?</div>
-  <div class="row"><button class="btn" onclick="confirmM('${m.id}')">Yes, start</button><button class="btn alt" onclick="later('${m.id}')">No, play at last</button></div></div>`;
+  <div class="row"><button class="btn" onclick="confirmM('${m.id}')">Yes, start</button><button class="btn alt" onclick="later('${m.id}')">No, move to last</button></div></div>`;
 }
 function confirmM(id){S.matches.find(x=>x.id===id).confirmed=true;tab='score';save();render();window.scrollTo(0,0)}
 function later(id){const i=S.matches.findIndex(x=>x.id===id);const[m]=S.matches.splice(i,1);S.matches.push(m);save();render()}
+function askStart(id){
+  const m=S.matches.find(x=>x.id===id);if(!m)return;
+  const lv=S.matches.find(x=>!x.done&&!x.bye&&x.id!==id&&(x.confirmed||x.games.some(g=>g[0]+g[1]>0)));
+  if(lv){alert('A match is in progress. Finish it in Score first.');return}
+  const a=T(m.a),b=T(m.b);if(!a||!b)return;
+  const lt=S.lastTeams||[];
+  const warn=(lt.includes(m.a)||lt.includes(m.b))?'<p class="note">Note: one of these teams just finished a match.</p>':'';
+  document.getElementById('edbox').innerHTML=`<h2>Start this match?</h2><p><b>${esc(a.name)}</b> (${esc(a.p1)} &amp; ${esc(a.p2)})<br>vs<br><b>${esc(b.name)}</b> (${esc(b.p1)} &amp; ${esc(b.p2)})</p><p>Have both teams come? Shall we start?</p>${warn}<div class="edact"><button class="btn" onclick="closeEd();confirmM('${m.id}')">Yes, start (go to Score)</button><button class="btn alt" onclick="closeEd();later('${m.id}')">No, move this match to last</button><button class="btn alt" onclick="closeEd()">Cancel</button></div>`;
+  document.getElementById('edm').hidden=false;
+}
 function goAdd(){tab='teams';render();setTimeout(()=>document.getElementById('tn').focus(),0)}
 function closeModal(){document.getElementById('modal').hidden=true}
 function reshuffle(){
@@ -267,7 +277,7 @@ function moneyCard(){
   <div id="msum">${moneySum()}</div><p class="note">Tick "Paid" on each team when the fee is received.</p></div>`;
 }
 function result(){
-  if(S.mode==='league'){const f0=S.matches.find(m=>m.po==='final');if(f0)return f0.done?[T(f0.winner),T(f0.winner===f0.a?f0.b:f0.a)]:null}
+  if(S.mode==='league'&&S.matches.some(m=>m.po)){const f0=S.matches.find(m=>m.po==='final');return f0&&f0.done?[T(f0.winner),T(f0.winner===f0.a?f0.b:f0.a)]:null}
   if(!S.started||!S.matches.length||S.waiting.length||S.matches.some(m=>!m.done))return null;
   if(S.mode==='knockout'){
     const c=champion();if(!c)return null;
@@ -370,7 +380,7 @@ function startTournament(){
     }
     S.matches=spread(list);
   }else S.matches=makeRound(ids,1);
-  S.started=true;S.lastDone=null;save();tab='upcoming';render();
+  S.started=true;S.lastDone=null;S.lastTeams=null;save();tab='upcoming';render();
 }
 function resetAll(){
   if(!confirm('Reset all scores and fixtures? Teams are kept.'))return;
@@ -389,8 +399,21 @@ function playoffAdvance(force){
     else if(top.length===3)S.matches.push(mkPo(top[0],top[1],'final'));
     return;
   }
-  const sf=po.filter(m=>m.po==='semi');
-  if(sf.length===2&&sf.every(m=>m.done)&&!po.some(m=>m.po==='final'))S.matches.push(mkPo(sf[0].winner,sf[1].winner,'final'));
+}
+function finalReady(){
+  if(S.mode!=='league'||!S.started)return false;
+  const sf=S.matches.filter(m=>m.po==='semi');
+  return sf.length===2&&sf.every(m=>m.done&&m.winner)&&!S.matches.some(m=>m.po==='final');
+}
+function moveToFinal(){
+  if(!finalReady())return;
+  const sf=S.matches.filter(m=>m.po==='semi');
+  S.matches.push(mkPo(sf[0].winner,sf[1].winner,'final'));
+  save();tab='upcoming';render();window.scrollTo(0,0);
+}
+function finalBtn(){
+  if(!finalReady())return'';
+  return `<div class="bar"><b>Semi-finals are complete</b><div>Both semi-final winners are ready for the Final.</div><div class="row"><button class="btn" onclick="moveToFinal()">➡️ Move to Final</button></div></div>`;
 }
 function moveToSemi(){
   if(S.mode!=='league'||!S.started)return;
@@ -437,7 +460,7 @@ function score(id,side,d){
   const gw=gwin(g);
   if(gw>=0){
     const w=gamesWon(m);
-    if(w[gw]>=need()){m.done=true;m.winner=gw?m.b:m.a;S.lastDone=m.id;advance()}
+    if(w[gw]>=need()){m.done=true;m.winner=gw?m.b:m.a;S.lastDone=m.id;S.lastTeams=[m.a,m.b];advance()}
   }
   save();render();
 }
@@ -515,7 +538,7 @@ function card(m,ctx){
   const side=(t,s,cls,mid)=>`<div class="side ${cls} ${m.done&&m.winner===t.id?'win':''}"><div class="nm">${esc(t.name)}</div><div class="pl">${esc(t.p1)} &amp; ${esc(t.p2)}</div>${mid}</div>`;
   const chips=(all)=>{const list=m.games.filter((x,i)=>(x[0]+x[1]>0)&&(all||i<n-1||between||m.done));return S.bestOf===3&&list.length?`<div class="gl">${list.map((x,i)=>`<span class="chip">Game ${i+1}: ${x[0]}–${x[1]}</span>`).join('')}</div>`:''};
   if(ctx==='up')return `<div class="m">${head}<div class="vs">${side(a,0,'a','')}<div class="mid">VS</div>${side(b,1,'b','')}</div>
-  <div class="act"><button class="btn alt" onclick="openEdit('${m.id}')">✏️ Edit</button></div></div>`;
+  <div class="act"><button class="btn" onclick="askStart('${m.id}')">▶ Start match</button><button class="btn alt" onclick="openEdit('${m.id}')">✏️ Edit</button></div></div>`;
   if(ctx==='res'){
     const big=s2=>`<div class="sc">${S.bestOf===3?w[s2]:g[s2]}</div>`;
     return `<div class="m">${head}<div class="vs">${side(a,0,'a',big(0))}<div class="mid">VS</div>${side(b,1,'b',big(1))}</div>${chips(true)}
@@ -538,7 +561,11 @@ function undoLast(id){
   save();render();
 }
 function nextMatch(){S.lastDone=null;tab='upcoming';save();render();window.scrollTo(0,0)}
-function upNext(){return S.matches.find(x=>!x.done&&!x.bye&&!x.confirmed&&!x.games.some(g=>g[0]+g[1]>0))}
+function upNext(){
+  const p=S.matches.filter(x=>!x.done&&!x.bye&&!x.confirmed&&!x.games.some(g=>g[0]+g[1]>0));
+  const lt=S.lastTeams||[];
+  return p.find(x=>!lt.includes(x.a)&&!lt.includes(x.b))||p[0];
+}
 const noFix=`<div class="card empty">No fixtures yet. Go to Teams, add the teams, pick League or Knockout, then press Shuffle &amp; start.</div>`;
 function groupList(ms,ctx){
   let h='';
@@ -566,7 +593,7 @@ function vUpcoming(){
   const nx=upNext();
   const lv=S.matches.find(m=>!m.done&&!m.bye&&(m.confirmed||m.games.some(g=>g[0]+g[1]>0)));
   const up=S.matches.filter(m=>!m.done&&!m.bye&&!m.confirmed&&!m.games.some(g=>g[0]+g[1]>0)&&(lv||!nx||m.id!==nx.id));
-  let h=(lv?liveBar(lv):nextBar())+`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="goAdd()">＋ Add late team</button><button class="btn alt" onclick="openEdit(null)">＋ Add match</button></div>`;
+  let h=finalBtn()+(lv?liveBar(lv):nextBar())+`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="goAdd()">＋ Add late team</button><button class="btn alt" onclick="openEdit(null)">＋ Add match</button></div>`;
   if(S.mode==='league'){
     if(S.matches.some(m=>m.po))h+=`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="redoPlayoffs()">🔄 Re-pick Semi-final from points table</button></div>`;
     else if(S.playoff!==false&&S.teams.length>=3)h+=`<p class="note">When all league matches are finished, the Semi-finals (1st vs 4th, 2nd vs 3rd) and the Final are picked automatically from the points table. You can also use the Move to Semi-final button under the Points table.</p>`;
@@ -584,7 +611,7 @@ function vTable(){
   const rows=standings().map((x,i)=>`<tr><td>${i+1}</td><td class="l"><b>${esc(x.t.name)}</b>${x.t.out?' <span class="tag">Withdrawn</span>':''}<div class="note" style="margin:0">${esc(x.t.p1)} &amp; ${esc(x.t.p2)}</div></td>
   <td>${x.P}</td><td>${x.W}</td><td>${x.L}</td><td>${x.PF}</td><td>${x.PA}</td>
   <td class="${x.PD>=0?'pos':'neg'}">${x.PD>0?'+':''}${x.PD}</td><td class="${x.RR>=0?'pos':'neg'}">${x.RR>0?'+':''}${x.RR.toFixed(2)}</td><td><input class="adj" type="number" value="${x.t.adj||0}" onchange="setAdj('${x.t.id}',this.value)"></td><td><b>${x.Pts}</b></td></tr>`).join('');
-  return prizeBanner()+`<div class="card"><h2>Points table</h2><div class="tw"><table><thead><tr><th>#</th><th class="l">Team</th><th>Played</th><th>Won</th><th>Lost</th><th>Pts For</th><th>Pts Against</th><th>Diff</th><th>Run Rate</th><th>Adjust</th><th>Points</th></tr></thead><tbody>${rows}</tbody></table></div>
+  return prizeBanner()+finalBtn()+`<div class="card"><h2>Points table</h2><div class="tw"><table><thead><tr><th>#</th><th class="l">Team</th><th>Played</th><th>Won</th><th>Lost</th><th>Pts For</th><th>Pts Against</th><th>Diff</th><th>Run Rate</th><th>Adjust</th><th>Points</th></tr></thead><tbody>${rows}</tbody></table></div>
   <p class="note">Win = 2 points. Run Rate = (points scored − points conceded) ÷ games played. Ranking: Points, then Run Rate, then Diff. Only completed league matches count (semi-final and final are not included). Adjust = manual points to add or remove (for example −1 for a penalty).</p>${semiBtn()}</div>`;
 }
 function render(){
