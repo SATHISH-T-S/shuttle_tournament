@@ -189,10 +189,10 @@ function spread(list,hist){
 function roundName(r){const c=S.matches.filter(m=>m.round===r).length;return c===1?'Final':c===2?'Semi-finals':c===4?'Quarter-finals':'Round '+r}
 
 /* ---------- Teams ---------- */
-function addTeam(){
+function addTeam(paid){
   const n=document.getElementById('tn').value.trim(),p1=document.getElementById('p1').value.trim(),p2=document.getElementById('p2').value.trim();
   if(!n||!p1||!p2){alert('Enter team name and both player names.');return}
-  const t={id:uid(),name:n,p1,p2};S.teams.push(t);if(S.started)joinLate(t);save();render();
+  const t={id:uid(),name:n,p1,p2,paid:paid===true};S.teams.push(t);if(S.started)joinLate(t);save();render();
   setTimeout(()=>document.getElementById('tn').focus(),0);
 }
 function editTeam(id,f,v){const t=T(id);if(t){t[f]=v.trim()||t[f];save()}}
@@ -278,6 +278,7 @@ function moneyCard(){
 }
 function result(){
   if(S.mode==='league'&&S.matches.some(m=>m.po)){const f0=S.matches.find(m=>m.po==='final');return f0&&f0.done?[T(f0.winner),T(f0.winner===f0.a?f0.b:f0.a)]:null}
+  if(S.mode==='league'&&S.playoff!==false&&!S.matches.some(m=>m.po)&&S.teams.filter(t=>!t.out).length>=3)return null;
   if(!S.started||!S.matches.length||S.waiting.length||S.matches.some(m=>!m.done))return null;
   if(S.mode==='knockout'){
     const c=champion();if(!c)return null;
@@ -501,7 +502,7 @@ function vTeams(){
   <div class="row"><input id="tn" placeholder="Team name">
   <input id="p1" placeholder="Player 1">
   <input id="p2" placeholder="Player 2" onkeydown="if(event.key==='Enter')addTeam()">
-  <button class="btn" onclick="addTeam()">Add team</button></div>
+  <button class="btn" onclick="addTeam()">Add team</button><button class="btn" style="background:#b8860b" onclick="addTeam(true)">💰 Paid &amp; add team</button></div>
   ${lock?'<p class="note">Tournament is running. A new team is added to the fixtures automatically (League: plays everyone. Knockout: joins the current round).</p>':''}</div>`;
   h+=`<div class="card"><h2>Teams (${S.teams.length})</h2>`;
   if(!S.teams.length)h+=`<div class="empty">No teams yet. Add the first team above.</div>`;
@@ -613,7 +614,28 @@ function vTable(){
   return prizeBanner()+finalBtn()+`<div class="card"><h2>Points table</h2><div class="tw"><table><thead><tr><th>#</th><th class="l">Team</th><th>Played</th><th>Won</th><th>Lost</th><th>Pts For</th><th>Pts Against</th><th>Diff</th><th>Run Rate</th><th>Adjust</th><th>Points</th></tr></thead><tbody>${rows}</tbody></table></div>
   <p class="note">Win = 2 points. Run Rate = (points scored − points conceded) ÷ games played. Ranking: Points, then Run Rate, then Diff. Only completed league matches count (semi-final and final are not included). Adjust = manual points to add or remove (for example −1 for a penalty).</p>${semiBtn()}</div>`;
 }
+function confetti(){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const c=document.createElement('canvas');
+  c.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:200';
+  document.body.appendChild(c);
+  const W=c.width=innerWidth,H=c.height=innerHeight,x=c.getContext('2d');
+  const cols=['#f2c230','#c0392b','#2166b0','#2e9e68','#ffffff','#ff7aa2'],P=[];
+  for(let b=0;b<5;b++){const ox=W*(0.1+0.2*b),oy=H*0.65;
+    for(let i=0;i<90;i++){const a=Math.random()*Math.PI*2,v=6+Math.random()*10;
+      P.push({x:ox,y:oy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-9,s:6+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[i%cols.length],d:b*22})}}
+  let f=0;
+  (function tick(){
+    x.clearRect(0,0,W,H);f++;
+    P.forEach(p=>{if(f<p.d)return;p.vy+=.25;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;
+      x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.globalAlpha=Math.max(0,1-(f-p.d)/260);x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
+    if(f<300)requestAnimationFrame(tick);else c.remove();
+  })();
+}
 function render(){
+  const win=result();
+  if(win&&!S.celebrated){S.celebrated=true;save();confetti()}
+  else if(!win&&S.celebrated){S.celebrated=false;save()}
   const tt=document.getElementById('ttl');if(tt)tt.textContent='🏸 '+(S.title||'Badminton Tournament Scorer');
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
   document.getElementById('app').innerHTML=tab==='teams'?vTeams():tab==='score'?vScore():tab==='upcoming'?vUpcoming():tab==='results'?vResults():vTable();
