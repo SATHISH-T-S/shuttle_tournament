@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f5132">
 <title>Badminton Tournament Scorer</title>
 <style>
 :root{--bg:#f3f6f1;--card:#fff;--ink:#14281d;--mute:#5d6f64;--line:#d9e2da;--court:#0f5132;--court2:#1b7a4b;--shuttle:#f2c230;--red:#c0392b;--blue:#2166b0}
@@ -32,7 +33,7 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--shuttle);o
 .team:first-of-type{border-top:0}
 .team .n{font-weight:800;color:var(--mute);text-align:center}
 .team input{width:100%}
-@media(max-width:640px){.team{grid-template-columns:28px 1fr 1fr}.team input:nth-of-type(1){grid-column:2/4}.team .btn,.team .paid{grid-column:2/4}}
+
 .mode{display:flex;gap:10px;flex-wrap:wrap}
 .mode label{flex:1 1 200px;border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
 .mode input{display:none}
@@ -59,7 +60,7 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--shuttle);o
 .empty{text-align:center;color:var(--mute);padding:24px 8px}
 .champ{background:linear-gradient(90deg,#f2c230,#ffe08a);color:#3a2e00;text-align:center;font-size:1.2rem;font-weight:900;padding:14px;border-radius:12px;margin-bottom:14px}
 .tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:620px}
+table{width:100%;border-collapse:collapse;min-width:700px}
 th,td{padding:10px 8px;text-align:center;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
 th{font-size:.8rem;color:var(--mute)}
 td.l,th.l{text-align:left}
@@ -73,21 +74,67 @@ tbody tr:nth-child(1) td:first-child{background:var(--shuttle);color:#3a2e00;fon
 .modal .row{flex-direction:column;align-items:stretch}.modal .row .btn{width:100%}
 .fld{display:grid;gap:4px;font-size:.8rem;color:var(--mute);flex:1 1 130px}.fld input{width:100%}
 .paid{display:flex;gap:6px;align-items:center;font-weight:700;font-size:.85rem}.paid input{width:auto}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+input,select{font-size:16px}
+@media(max-width:720px){
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  header{padding:12px 14px 12px;padding-top:calc(12px + env(safe-area-inset-top))}
+  header h1{font-size:1.2rem}header p{margin:0;font-size:.8rem}
+  nav{position:fixed;left:0;right:0;bottom:0;max-width:none;margin:0;gap:0;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:50;box-shadow:0 -2px 10px rgba(0,0,0,.12)}
+  nav button{color:var(--mute);border-radius:0;padding:12px 4px;font-size:.9rem;min-height:56px;border-top:3px solid transparent}
+  nav button.on{background:transparent;color:var(--court);border-top-color:var(--shuttle)}
+  main{padding:12px}
+  .card{padding:12px}
+  .btn{min-height:46px;padding:10px 14px}
+  input,select{min-height:46px}
+  .card .row>input,.card .row>select{flex:1 1 100%}
+  .card .row>.btn{flex:1 1 100%}
+  .fld{flex:1 1 100%}
+  .team{grid-template-columns:1fr 1fr;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
+  .team:first-of-type{border-top:1px solid var(--line)}
+  .team .n{grid-column:1/3;text-align:left}
+  .team input:nth-of-type(1){grid-column:1/3}
+  .team .paid{min-height:46px}
+  .team .del{min-height:46px}
+  .m{padding:10px}
+  .sc{font-size:3.2rem}
+  .side .nm{font-size:.95rem;word-break:break-word}
+  .ctl button{width:70px;height:54px;font-size:1.6rem}
+  .ctl button.p{width:84px}
+  .act .btn{flex:1 1 40%}
+  .bar .row .btn{flex:1 1 100%}
+  table{min-width:640px}
+  th.l,td.l{position:sticky;left:0;background:var(--card);box-shadow:1px 0 0 var(--line);min-width:110px}
+  .champ{font-size:1rem}
+}
+.modal .box{max-height:92vh;overflow:auto}.fld select{width:100%}.box .fld{margin-bottom:10px}
+.edr{display:grid;grid-template-columns:64px 1fr 14px 1fr;gap:8px;align-items:center;margin-bottom:8px}
+.edr input{width:100%;text-align:center;font-size:1.3rem;font-weight:800}
+.edact{display:grid;gap:8px;margin-top:12px}
+table input.adj{width:64px;min-height:38px;padding:4px;text-align:center}
+.chip{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:2px 10px;margin:2px;font-size:.8rem}
+.won{background:var(--court);color:#fff;text-align:center;padding:10px;border-radius:10px;font-weight:800;margin-top:10px}
+nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.75rem}
+nav button b{font-size:1.15rem;font-weight:400;line-height:1}
+@media(max-width:720px){nav button{padding:8px 2px;font-size:.72rem}}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <h1>🏸 Badminton Tournament Scorer</h1>
+    <h1 id="ttl">🏸 Badminton Tournament Scorer</h1>
     <p>Teams of 2 · 14 points a game · 13 is Hope Point</p>
     <nav id="nav">
-      <button data-t="teams" class="on">Teams</button>
-      <button data-t="matches">Matches</button>
-      <button data-t="table">Points Table</button>
+      <button data-t="teams" class="on"><b>👥</b>Teams</button>
+      <button data-t="score"><b>🏸</b>Score</button>
+      <button data-t="upcoming"><b>📅</b>Upcoming</button>
+      <button data-t="results"><b>✅</b>Results</button>
+      <button data-t="table"><b>📊</b>Points</button>
     </nav>
   </div>
 </header>
 <main id="app"></main>
+<div id="edm" class="modal" hidden><div class="box" id="edbox"></div></div>
 <div id="modal" class="modal" hidden><div class="box"><h2>Tournament in progress</h2>
 <p>The page was refreshed. What do you want to do?</p>
 <div class="row"><button class="btn" onclick="closeModal()">Continue (keep scores)</button>
@@ -131,6 +178,7 @@ function editTeam(id,f,v){const t=T(id);if(t){t[f]=v.trim()||t[f];save()}}
 function joinLate(t){
   const others=S.teams.filter(x=>x.id!==t.id&&!x.out);
   if(S.mode==='league'){
+    S.matches=S.matches.filter(m=>!m.po||m.done||m.games.some(g=>g[0]+g[1]>0));
     const pick=S.perTeam&&S.perTeam<others.length?shuffle(others).slice(0,S.perTeam):others;
     const nm=pick.map(o=>({id:uid(),round:1,a:t.id,b:o.id,games:[[0,0]],done:false,winner:null}));
     const keep=S.matches.filter(m=>m.done||m.confirmed||m.games.some(g=>g[0]+g[1]>0));
@@ -167,7 +215,7 @@ function nextBar(){
   <div>Have both teams come? Shall we start?</div>
   <div class="row"><button class="btn" onclick="confirmM('${m.id}')">Yes, start</button><button class="btn alt" onclick="later('${m.id}')">No, play at last</button></div></div>`;
 }
-function confirmM(id){S.matches.find(x=>x.id===id).confirmed=true;save();render()}
+function confirmM(id){S.matches.find(x=>x.id===id).confirmed=true;tab='score';save();render();window.scrollTo(0,0)}
 function later(id){const i=S.matches.findIndex(x=>x.id===id);const[m]=S.matches.splice(i,1);S.matches.push(m);save();render()}
 function goAdd(){tab='teams';render();setTimeout(()=>document.getElementById('tn').focus(),0)}
 function closeModal(){document.getElementById('modal').hidden=true}
@@ -194,18 +242,77 @@ function moneyCard(){
   <div id="msum">${moneySum()}</div><p class="note">Tick "Paid" on each team when the fee is received.</p></div>`;
 }
 function result(){
+  if(S.mode==='league'){const f0=S.matches.find(m=>m.po==='final');if(f0)return f0.done?[T(f0.winner),T(f0.winner===f0.a?f0.b:f0.a)]:null}
   if(!S.started||!S.matches.length||S.waiting.length||S.matches.some(m=>!m.done))return null;
   if(S.mode==='knockout'){
     const c=champion();if(!c)return null;
     const last=Math.max(...S.matches.map(m=>m.round)),f=S.matches.find(m=>m.round===last);
     return [c,T(f.winner===f.a?f.b:f.a)];
   }
+  const f=S.matches.find(m=>m.po==='final');
+  if(f){if(!f.done)return null;return [T(f.winner),T(f.winner===f.a?f.b:f.a)]}
   const st=standings();return [st[0].t,st[1]?st[1].t:null];
 }
 function prizeBanner(){
   const r=result();if(!r)return'';
   const line=(md,t,amt)=>t?`<div>${md} ${esc(t.name)} (${esc(t.p1)} &amp; ${esc(t.p2)}) wins ₹${amt}</div>`:'';
   return `<div class="champ">${line('🥇',r[0],S.p1)}${line('🥈',r[1],S.p2)}</div>`;
+}
+function setTitle(v){S.title=v;save();const t=document.getElementById('ttl');if(t)t.textContent='🏸 '+(v||'Badminton Tournament Scorer')}
+function setAdj(id,v){const t=T(id);if(t){t.adj=parseInt(v,10)||0;save();render()}}
+let EID=null;
+function teamOpts(sel){return S.teams.filter(t=>!t.out||t.id===sel).map(t=>`<option value="${t.id}" ${t.id===sel?'selected':''}>${esc(t.name)} (${esc(t.p1)} &amp; ${esc(t.p2)})</option>`).join('')}
+function openEdit(id){
+  const m=id?S.matches.find(x=>x.id===id):null;
+  if(!m&&S.teams.length<2){alert('Add at least 2 teams first.');return}
+  EID=id;
+  const act=S.teams.filter(t=>!t.out);
+  const a=m?m.a:act[0].id,b=m?m.b:act[1].id;
+  const ng=S.bestOf===3?3:1;let rows='';
+  for(let i=0;i<ng;i++){
+    const g=(m&&m.games[i])||[0,0];
+    rows+=`<div class="edr"><span>${ng>1?'Game '+(i+1):'Score'}</span><input type="number" inputmode="numeric" min="0" max="14" id="ea${i}" value="${g[0]}"><b>-</b><input type="number" inputmode="numeric" min="0" max="14" id="eb${i}" value="${g[1]}"></div>`;
+  }
+  document.getElementById('edbox').innerHTML=`<h2>${m?'Edit match':'Add match'}</h2>
+  <label class="fld">Team A<select id="eta">${teamOpts(a)}</select></label>
+  <label class="fld">Team B<select id="etb">${teamOpts(b)}</select></label>
+  <h3>Points (0 to 14)</h3>${rows}
+  <p class="note">First to 14 wins. Leave 0-0 for a match not played yet. Team names and players are edited on the Teams page.</p>
+  <div class="edact"><button class="btn" onclick="saveEdit()">Save</button><button class="btn alt" onclick="closeEd()">Cancel</button>${m?'<button class="btn del" onclick="delMatch()">Delete match</button>':''}</div>`;
+  document.getElementById('edm').hidden=false;
+}
+function closeEd(){document.getElementById('edm').hidden=true}
+function saveEdit(){
+  const a=document.getElementById('eta').value,b=document.getElementById('etb').value;
+  if(a===b){alert('Pick two different teams.');return}
+  const ng=S.bestOf===3?3:1,rows=[];
+  for(let i=0;i<ng;i++){
+    const x=parseInt(document.getElementById('ea'+i).value,10)||0,y=parseInt(document.getElementById('eb'+i).value,10)||0;
+    if(x<0||y<0||x>MAX||y>MAX||(x===MAX&&y===MAX)){alert('Scores must be 0 to 14, and both teams cannot have 14.');return}
+    rows.push([x,y]);
+  }
+  let last=-1;rows.forEach((r,i)=>{if(r[0]+r[1]>0)last=i});
+  for(let i=0;i<last;i++)if(rows[i][0]!==MAX&&rows[i][1]!==MAX){alert('Game '+(i+1)+' must be finished (one team on 14) before the next game.');return}
+  const games=[];let wa=0,wb=0,done=false,winner=null;
+  for(const r of rows){
+    if(r[0]+r[1]===0)break;
+    games.push(r);
+    if(r[0]===MAX)wa++;else if(r[1]===MAX)wb++;
+    if(wa>=need()||wb>=need()){done=true;winner=wa>=need()?a:b;break}
+  }
+  if(!done&&!games.length)games.push([0,0])
+  let m=EID?S.matches.find(x=>x.id===EID):null;
+  if(m&&S.mode==='knockout'&&S.matches.some(x=>x.round>m.round)&&(m.a!==a||m.b!==b||m.winner!==winner)){alert('The next round has already started. Reset fixtures to change this result.');return}
+  if(!m){m={id:uid(),round:S.mode==='knockout'?Math.max(1,...S.matches.map(x=>x.round)):1};S.matches.push(m)}
+  const any=games.some(g=>g[0]+g[1]>0);
+  Object.assign(m,{a,b,games,done,winner,bye:false,confirmed:m.confirmed||any});
+  advance();save();closeEd();render();
+}
+function delMatch(){
+  const m=S.matches.find(x=>x.id===EID);if(!m)return;
+  if(S.mode==='knockout'&&S.matches.some(x=>x.round>m.round)){alert('The next round has already started.');return}
+  if(!confirm('Delete this match?'))return;
+  S.matches=S.matches.filter(x=>x.id!==EID);advance();save();closeEd();render();
 }
 function setPer(v){if(S.started)return;S.perTeam=+v;save()}
 function perSel(lock){
@@ -225,25 +332,63 @@ function makeRound(ids,round){
 }
 function startTournament(){
   if(S.teams.length<2){alert('Add at least 2 teams.');return}
+  if(S.started){if(!confirm('Reshuffle will clear all scores and make new fixtures with all current teams. Continue?'))return;S.waiting=[];S.teams=S.teams.filter(t=>!t.out)}
   const ids=S.teams.map(t=>t.id);
   if(S.mode==='league'){
     const n=ids.length,k=(S.perTeam&&S.perTeam<n-1)?S.perTeam:n-1;
     const t=shuffle(ids);if(t.length%2)t.push(null);
     const N=t.length,list=[];
-    for(let r=0;r<k;r++){
+    const full=!(S.perTeam&&S.perTeam<n-1);
+    for(let r=0;r<(full?N-1:k);r++){
       for(let i=0;i<N/2;i++){const a=t[i],b=t[N-1-i];if(a&&b)list.push({id:uid(),round:1,a,b,games:[[0,0]],done:false,winner:null})}
       t.splice(1,0,t.pop());
     }
     S.matches=list;
   }else S.matches=makeRound(ids,1);
-  S.started=true;save();tab='matches';render();
+  S.started=true;S.lastDone=null;save();tab='upcoming';render();
 }
 function resetAll(){
   if(!confirm('Reset all scores and fixtures? Teams are kept.'))return;
   S.started=false;S.matches=[];S.waiting=[];S.teams=S.teams.filter(t=>!t.out);save();tab='teams';render();
 }
 function clearAll(){if(confirm('Delete EVERYTHING including teams?')){S={teams:[],mode:'league',bestOf:1,started:false,matches:[],waiting:[],fee:300,p1:2000,p2:1000};save();tab='teams';render()}}
+function mkPo(a,b,po){return{id:uid(),round:po==='semi'?2:3,po,a,b,games:[[0,0]],done:false,winner:null}}
+function playoffAdvance(force){
+  if(S.playoff===false&&!force)return;
+  const lg=S.matches.filter(m=>!m.po);
+  const po=S.matches.filter(m=>m.po);
+  if(!po.length){
+    if(!force&&(!lg.length||!lg.every(m=>m.done)))return;
+    const top=standings().filter(x=>!x.t.out).map(x=>x.t.id);
+    if(top.length>=4)S.matches.push(mkPo(top[0],top[3],'semi'),mkPo(top[1],top[2],'semi'));
+    else if(top.length===3)S.matches.push(mkPo(top[0],top[1],'final'));
+    return;
+  }
+  const sf=po.filter(m=>m.po==='semi');
+  if(sf.length===2&&sf.every(m=>m.done)&&!po.some(m=>m.po==='final'))S.matches.push(mkPo(sf[0].winner,sf[1].winner,'final'));
+}
+function moveToSemi(){
+  if(S.mode!=='league'||!S.started)return;
+  const pend=S.matches.filter(m=>!m.po&&!m.done).length,ex=S.matches.some(m=>m.po);
+  if(!confirm((ex?'This replaces the current semi-finals and final. ':'')+(pend?pend+' league match(es) are not finished yet. ':'')+'Move the top teams of the points table to the semi-final?'))return;
+  S.matches=S.matches.filter(m=>!m.po);
+  playoffAdvance(true);
+  if(!S.matches.some(m=>m.po)){alert('At least 3 teams are needed.');return}
+  save();tab='upcoming';render();window.scrollTo(0,0);
+}
+function semiBtn(){
+  if(S.mode!=='league'||!S.started||S.teams.filter(t=>!t.out).length<3)return'';
+  const ex=S.matches.some(m=>m.po);
+  return `<div class="row" style="margin-top:12px"><button class="btn" onclick="moveToSemi()">➡️ ${ex?'Re-pick Semi-final from this table':'Move to Semi-final'}</button></div><p class="note">Takes the top 4 teams from this table: 1st vs 4th and 2nd vs 3rd. With 3 teams, the top 2 play the Final.</p>`;
+}
+function redoPlayoffs(){
+  if(!confirm('Remove the semi-finals and final and pick them again from the current points table?'))return;
+  S.matches=S.matches.filter(m=>!m.po);playoffAdvance();save();render();
+}
+function setPlay(v){S.playoff=v;if(S.started)advance();save();render()}
+function playSel(){return `<label class="paid" style="margin-top:12px"><input type="checkbox" ${S.playoff!==false?'checked':''} onchange="setPlay(this.checked)"> Semi-final &amp; Final after the league (top 4 from the points table)</label>`}
 function advance(){
+  if(S.mode==='league'){playoffAdvance();return}
   if(S.mode!=='knockout'||!S.matches.length)return;
   const last=Math.max(...S.matches.map(m=>m.round));
   const r=S.matches.filter(m=>m.round===last);
@@ -265,8 +410,7 @@ function score(id,side,d){
   g[side]=Math.max(0,Math.min(MAX,g[side]+d));
   if(g[side]===MAX){
     const w=gamesWon(m);
-    if(w[side]>=need()){m.done=true;m.winner=side?m.b:m.a;advance()}
-    else m.games.push([0,0]);
+    if(w[side]>=need()){m.done=true;m.winner=side?m.b:m.a;S.lastDone=m.id;advance()}
   }
   save();render();
 }
@@ -289,21 +433,21 @@ function resetMatch(id){
 function standings(){
   const r={};S.teams.forEach(t=>r[t.id]={t,P:0,W:0,L:0,PF:0,PA:0,G:0});
   S.matches.forEach(m=>{
-    if(m.bye||!m.done)return;
+    if(m.bye||!m.done||m.po)return;
     [[m.a,0],[m.b,1]].forEach(([id,s])=>{
       const x=r[id];if(!x)return;
       x.P++;m.winner===id?x.W++:x.L++;
       m.games.forEach(g=>{if(g[0]+g[1]===0)return;x.PF+=g[s];x.PA+=g[1-s];x.G++});
     });
   });
-  return Object.values(r).map(x=>({...x,PD:x.PF-x.PA,RR:x.G?(x.PF-x.PA)/x.G:0,Pts:x.W*2}))
+  return Object.values(r).map(x=>({...x,PD:x.PF-x.PA,RR:x.G?(x.PF-x.PA)/x.G:0,Pts:x.W*2+(x.t.adj||0)}))
     .sort((a,b)=>b.Pts-a.Pts||b.RR-a.RR||b.PD-a.PD||b.PF-a.PF);
 }
 
 /* ---------- Views ---------- */
 function vTeams(){
   const lock=S.started;
-  let h=`<div class="card"><h2>Add team</h2>
+  let h=`<div class="card"><h2>Tournament name</h2><input style="width:100%" value="${esc(S.title||'')}" placeholder="Badminton Tournament Scorer" oninput="setTitle(this.value)"></div><div class="card"><h2>Add team</h2>
   <div class="row"><input id="tn" placeholder="Team name">
   <input id="p1" placeholder="Player 1">
   <input id="p2" placeholder="Player 2" onkeydown="if(event.key==='Enter')addTeam()">
@@ -322,65 +466,105 @@ function vTeams(){
   h+=moneyCard()+`<div class="card"><h2>Tournament type</h2><div class="mode">
   <label class="${S.mode==='league'?'sel':''}"><input type="radio" name="md" onclick="setMode('league')"><b>League match</b><span>Every team plays every other team. Fixtures are shuffled.</span></label>
   <label class="${S.mode==='knockout'?'sel':''}"><input type="radio" name="md" onclick="setMode('knockout')"><b>Knockout match</b><span>Random draw. Lose and you are out. Odd teams get a bye.</span></label></div>
-  ${S.mode==='league'?perSel(lock):''}
+  ${S.mode==='league'?perSel(lock)+playSel():''}
   <div class="row" style="margin-top:12px"><label for="bo">Games in each match</label>
   <select id="bo" onchange="setBest(this.value)" ${lock?'disabled':''}>
   <option value="1" ${S.bestOf===1?'selected':''}>1 game (first to 14 wins)</option>
   <option value="3" ${S.bestOf===3?'selected':''}>Best of 3 (first to win 2 games)</option></select></div>
   <div class="row" style="margin-top:14px">
-  <button class="btn" onclick="startTournament()" ${lock?'disabled':''}>Shuffle &amp; start</button>
+  <button class="btn" onclick="startTournament()">${lock?'Reshuffle all matches':'Shuffle &amp; start'}</button>
   <button class="btn alt" onclick="resetAll()" ${lock?'':'disabled'}>Reset fixtures</button>
   <button class="btn del" onclick="clearAll()">Delete everything</button></div></div>`;
   return h;
 }
-function card(m){
+function lbl(m){return S.mode==='knockout'?roundName(m.round):m.po?(m.po==='final'?'Final':'Semi-final'):'Match '+(S.matches.indexOf(m)+1)}
+function card(m,ctx){
   if(m.bye){const t=T(m.a);return `<div class="m"><div class="mh"><span>${roundName(m.round)}</span><span class="tag">Bye</span></div><b>${esc(t.name)}</b> goes straight to the next round.</div>`}
   const a=T(m.a),b=T(m.b);if(!a||!b)return'';
-  const g=m.games[m.games.length-1],started=m.games.some(x=>x[0]+x[1]>0);
-  const st=m.done?'done':started?'live':'';
-  const side=(t,s,cls)=>`<div class="side ${cls} ${m.done&&m.winner===t.id?'win':''}">
-    <div class="nm">${esc(t.name)}</div><div class="pl">${esc(t.p1)} &amp; ${esc(t.p2)}</div>
-    <div class="sc">${g[s]}</div>${!m.done&&g[s]===MAX-1?'<span class="hope">Hope point</span>':''}
-    ${m.done?'':`<div class="ctl"><button onclick="score('${m.id}',${s},-1)" aria-label="minus">−</button><button class="p" onclick="score('${m.id}',${s},1)" aria-label="plus">+</button></div>`}</div>`;
-  const hist=m.games.map((x,i)=>(x[0]+x[1]>0||!m.done&&i===m.games.length-1)?`G${i+1}: ${x[0]}-${x[1]}`:'').filter(Boolean).join(' &nbsp;|&nbsp; ');
-  const w=gamesWon(m);
-  return `<div class="m ${st==='live'?'live':''}"><div class="mh"><span>${S.mode==='knockout'?roundName(m.round):'Match '+(S.matches.indexOf(m)+1)}${S.bestOf===3?' · Games '+w[0]+'-'+w[1]:''}</span>
-  <span class="tag ${st}">${m.done?'Completed':started?'Live':'Upcoming'}</span></div>
-  <div class="vs">${side(a,0,'a')}<div class="mid">VS</div>${side(b,1,'b')}</div>
-  <div class="gl">${hist}</div>
-  <div class="act">${m.done?`<button class="btn alt" onclick="reopen('${m.id}')">Edit score</button>`:''}
-  ${started?`<button class="btn del" onclick="resetMatch('${m.id}')">Clear scores</button>`:''}</div></div>`;
+  const started=m.games.some(x=>x[0]+x[1]>0),n=m.games.length,g=m.games[n-1];
+  const between=!m.done&&(g[0]>=MAX||g[1]>=MAX),w=gamesWon(m),live=started||m.confirmed;
+  const tag=m.done?'Completed':live?'Live':'Upcoming',tc=m.done?'done':live?'live':'';
+  const head=`<div class="mh"><span>${lbl(m)}${S.bestOf===3&&ctx!=='up'?' · Games won '+w[0]+'-'+w[1]:''}</span><span class="tag ${tc}">${tag}</span></div>`;
+  const side=(t,s,cls,mid)=>`<div class="side ${cls} ${m.done&&m.winner===t.id?'win':''}"><div class="nm">${esc(t.name)}</div><div class="pl">${esc(t.p1)} &amp; ${esc(t.p2)}</div>${mid}</div>`;
+  const chips=(all)=>{const list=m.games.filter((x,i)=>(x[0]+x[1]>0)&&(all||i<n-1||between||m.done));return S.bestOf===3&&list.length?`<div class="gl">${list.map((x,i)=>`<span class="chip">Game ${i+1}: ${x[0]}–${x[1]}</span>`).join('')}</div>`:''};
+  if(ctx==='up')return `<div class="m">${head}<div class="vs">${side(a,0,'a','')}<div class="mid">VS</div>${side(b,1,'b','')}</div>
+  <div class="act"><button class="btn" onclick="confirmM('${m.id}')">▶ Start match</button><button class="btn alt" onclick="openEdit('${m.id}')">✏️ Edit</button></div></div>`;
+  if(ctx==='res'){
+    const big=s2=>`<div class="sc">${S.bestOf===3?w[s2]:g[s2]}</div>`;
+    return `<div class="m">${head}<div class="vs">${side(a,0,'a',big(0))}<div class="mid">VS</div>${side(b,1,'b',big(1))}</div>${chips(true)}
+    <div class="act"><button class="btn alt" onclick="openEdit('${m.id}')">✏️ Edit match</button></div></div>`;
+  }
+  const ctl=(s2)=>(m.done||between)?'':`<div class="ctl"><button onclick="score('${m.id}',${s2},-1)" aria-label="minus">−</button><button class="p" onclick="score('${m.id}',${s2},1)" aria-label="plus">+</button></div>`;
+  const big=s2=>`<div class="sc">${g[s2]}</div>${!m.done&&!between&&g[s2]===MAX-1?'<span class="hope">Hope point</span>':''}${ctl(s2)}`;
+  let banner='';
+  if(m.done)banner=`<div class="won">🏆 ${esc(T(m.winner).name)} wins ${S.bestOf===3?'the match '+w[0]+'-'+w[1]:g[0]+'–'+g[1]}</div><div class="act"><button class="btn alt" onclick="undoLast('${m.id}')">↩ Undo last point</button></div>`;
+  else if(between){const wn=g[0]>=MAX?a:b;banner=`<div class="won">Game ${n} won by ${esc(wn.name)} (${g[0]}–${g[1]})</div><div class="act"><button class="btn" onclick="startNext('${m.id}')">▶ Start Game ${n+1}</button><button class="btn alt" onclick="undoLast('${m.id}')">↩ Undo last point</button></div>`}
+  return `<div class="m ${live&&!m.done?'live':''}">${head}${S.bestOf===3&&!m.done?`<div class="gl"><b>Game ${n}</b></div>`:''}
+  <div class="vs">${side(a,0,'a',big(0))}<div class="mid">VS</div>${side(b,1,'b',big(1))}</div>${chips(false)}${banner}
+  <div class="act"><button class="btn alt" onclick="openEdit('${m.id}')">✏️ Edit match</button>${started&&!m.done?`<button class="btn del" onclick="resetMatch('${m.id}')">Clear scores</button>`:''}</div></div>`;
 }
-function vMatches(){
-  if(!S.started)return`<div class="card empty">No fixtures yet. Add teams, pick League or Knockout, then press Shuffle &amp; start.</div>`;
-  const c=champion();let h=nextBar()+`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="goAdd()">＋ Add late team</button></div>`;h+=prizeBanner();
+function startNext(id){const m=S.matches.find(x=>x.id===id);if(m){m.games.push([0,0]);save();render()}}
+function undoLast(id){
+  const m=S.matches.find(x=>x.id===id);if(!m)return;
+  if(m.done){reopen(id);return}
+  const g=m.games[m.games.length-1];if(g[0]>=MAX)g[0]=MAX-1;else if(g[1]>=MAX)g[1]=MAX-1;
+  save();render();
+}
+function nextMatch(){S.lastDone=null;tab='upcoming';save();render();window.scrollTo(0,0)}
+function upNext(){return S.matches.find(x=>!x.done&&!x.bye&&!x.confirmed&&!x.games.some(g=>g[0]+g[1]>0))}
+const noFix=`<div class="card empty">No fixtures yet. Go to Teams, add the teams, pick League or Knockout, then press Shuffle &amp; start.</div>`;
+function groupList(ms,ctx){
+  let h='';
   if(S.mode==='knockout'){
-    h+=`<p class="note">Knockout: lose and you are out. Winners move to the next round automatically.</p>`;
-    [...new Set(S.matches.map(m=>m.round))].sort((a,b)=>b-a).forEach(r=>{
-      const ms=S.matches.filter(m=>m.round===r).sort((a,b)=>a.done-b.done);
-      h+=`<h3>${roundName(r)} (${ms.filter(m=>m.done).length}/${ms.length} done)</h3>`+ms.map(card).join('');
-    });
+    [...new Set(ms.map(m=>m.round))].sort((a,b)=>b-a).forEach(r=>{h+=`<h3>${roundName(r)}</h3>`+ms.filter(m=>m.round===r).map(m=>card(m,ctx)).join('')});
     return h;
   }
-  const up=S.matches.filter(m=>!m.done),dn=S.matches.filter(m=>m.done);
-  const cur=`<p class="note">League: each team plays the number of matches chosen on the Teams page.</p>`;
-  h+=cur+`<h3>Upcoming &amp; live (${up.length})</h3>`+(up.map(card).join('')||`<div class="empty">All matches finished.</div>`);
-  h+=`<h3>Completed (${dn.length})</h3>`+(dn.map(card).join('')||`<div class="empty">No completed matches yet.</div>`);
+  const fin=ms.filter(m=>m.po==='final'),sf=ms.filter(m=>m.po==='semi'),lg=ms.filter(m=>!m.po);
+  if(fin.length)h+=`<h3>Final</h3>`+fin.map(m=>card(m,ctx)).join('');
+  if(sf.length)h+=`<h3>Semi-finals</h3>`+sf.map(m=>card(m,ctx)).join('');
+  if(lg.length)h+=`<h3>League matches (${lg.length})</h3>`+lg.map(m=>card(m,ctx)).join('');
   return h;
+}
+function vScore(){
+  if(!S.started)return noFix;
+  const live=S.matches.filter(m=>!m.done&&!m.bye&&(m.confirmed||m.games.some(g=>g[0]+g[1]>0)));
+  const jd=S.matches.find(m=>m.id===S.lastDone&&m.done);
+  let h=prizeBanner();
+  if(jd)h+=`<h3>Just finished</h3>`+card(jd,'score')+`<div class="row" style="margin-bottom:12px"><button class="btn" onclick="nextMatch()">Next match →</button></div>`;
+  h+=live.length?`<h3>Live matches (${live.length})</h3>`+live.map(m=>card(m,'score')).join(''):`<div class="card empty">No match is being scored right now.<br><br><button class="btn" onclick="nextMatch()">Go to upcoming matches</button></div>`;
+  return h;
+}
+function vUpcoming(){
+  if(!S.started)return noFix;
+  const nx=upNext();
+  const up=S.matches.filter(m=>!m.done&&!m.bye&&!m.confirmed&&!m.games.some(g=>g[0]+g[1]>0)&&(!nx||m.id!==nx.id));
+  let h=nextBar()+`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="goAdd()">＋ Add late team</button><button class="btn alt" onclick="openEdit(null)">＋ Add match</button></div>`;
+  if(S.mode==='league'){
+    if(S.matches.some(m=>m.po))h+=`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="redoPlayoffs()">🔄 Re-pick Semi-final from points table</button></div>`;
+    else if(S.playoff!==false&&S.teams.length>=3)h+=`<p class="note">When all league matches are finished, the Semi-finals (1st vs 4th, 2nd vs 3rd) and the Final are picked automatically from the points table. You can also use the Move to Semi-final button under the Points table.</p>`;
+  }else h+=`<p class="note">Knockout: lose and you are out. Winners move to the next round automatically.</p>`;
+  h+=up.length?`<h3>More upcoming matches (${up.length})</h3>`+groupList(up,'up'):(nx?'':`<div class="card empty">No upcoming matches. Check Score for live matches and Results for finished ones.</div>`);
+  return h;
+}
+function vResults(){
+  if(!S.started)return noFix;
+  const dn=S.matches.filter(m=>m.done);
+  return prizeBanner()+(dn.length?groupList(dn,'res'):`<div class="card empty">No finished matches yet.</div>`);
 }
 function vTable(){
   if(!S.teams.length)return`<div class="card empty">Add teams to see the points table.</div>`;
   const rows=standings().map((x,i)=>`<tr><td>${i+1}</td><td class="l"><b>${esc(x.t.name)}</b>${x.t.out?' <span class="tag">Withdrawn</span>':''}<div class="note" style="margin:0">${esc(x.t.p1)} &amp; ${esc(x.t.p2)}</div></td>
   <td>${x.P}</td><td>${x.W}</td><td>${x.L}</td><td>${x.PF}</td><td>${x.PA}</td>
-  <td class="${x.PD>=0?'pos':'neg'}">${x.PD>0?'+':''}${x.PD}</td><td class="${x.RR>=0?'pos':'neg'}">${x.RR>0?'+':''}${x.RR.toFixed(2)}</td><td><b>${x.Pts}</b></td></tr>`).join('');
-  return prizeBanner()+`<div class="card"><h2>Points table</h2><div class="tw"><table><thead><tr><th>#</th><th class="l">Team</th><th>Played</th><th>Won</th><th>Lost</th><th>Pts For</th><th>Pts Against</th><th>Diff</th><th>Run Rate</th><th>Points</th></tr></thead><tbody>${rows}</tbody></table></div>
-  <p class="note">Win = 2 points. Run Rate = (points scored − points conceded) ÷ games played. Ranking: Points, then Run Rate, then Diff. Only completed matches count.</p></div>`;
+  <td class="${x.PD>=0?'pos':'neg'}">${x.PD>0?'+':''}${x.PD}</td><td class="${x.RR>=0?'pos':'neg'}">${x.RR>0?'+':''}${x.RR.toFixed(2)}</td><td><input class="adj" type="number" value="${x.t.adj||0}" onchange="setAdj('${x.t.id}',this.value)"></td><td><b>${x.Pts}</b></td></tr>`).join('');
+  return prizeBanner()+`<div class="card"><h2>Points table</h2><div class="tw"><table><thead><tr><th>#</th><th class="l">Team</th><th>Played</th><th>Won</th><th>Lost</th><th>Pts For</th><th>Pts Against</th><th>Diff</th><th>Run Rate</th><th>Adjust</th><th>Points</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="note">Win = 2 points. Run Rate = (points scored − points conceded) ÷ games played. Ranking: Points, then Run Rate, then Diff. Only completed league matches count (semi-final and final are not included). Adjust = manual points to add or remove (for example −1 for a penalty).</p>${semiBtn()}</div>`;
 }
 function render(){
+  const tt=document.getElementById('ttl');if(tt)tt.textContent='🏸 '+(S.title||'Badminton Tournament Scorer');
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
-  document.getElementById('app').innerHTML=tab==='teams'?vTeams():tab==='matches'?vMatches():vTable();
+  document.getElementById('app').innerHTML=tab==='teams'?vTeams():tab==='score'?vScore():tab==='upcoming'?vUpcoming():tab==='results'?vResults():vTable();
 }
-document.getElementById('nav').addEventListener('click',e=>{const t=e.target.dataset.t;if(t){tab=t;render()}});
+document.getElementById('nav').addEventListener('click',e=>{const bt=e.target.closest('button'),t=bt&&bt.dataset.t;if(t){tab=t;render();window.scrollTo(0,0)}});
 render();
 if(S.started)document.getElementById('modal').hidden=false;
 </script>
