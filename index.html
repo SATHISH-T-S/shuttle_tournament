@@ -98,9 +98,21 @@ tbody tr:nth-child(1) td:first-child{background:var(--shuttle);color:#3a2e00;fon
 <script>
 const MAX=14, KEY='bt_state_v1';
 let S=load(), tab='teams';
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s){s.waiting=s.waiting||[];s.bestOf=s.bestOf||1;s.perTeam=s.perTeam||0;s.fee=s.fee??300;s.p1=s.p1??2000;s.p2=s.p2??1000;return s}}catch(e){}
+function load(){
+  const c=[];
+  try{c.push(JSON.parse(localStorage.getItem(KEY)))}catch(e){}
+  try{c.push(JSON.parse(sessionStorage.getItem(KEY)))}catch(e){}
+  try{if(window.name.indexOf('BT:')===0)c.push(JSON.parse(window.name.slice(3)))}catch(e){}
+  const s=c.filter(Boolean).sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
+  if(s){s.waiting=s.waiting||[];s.bestOf=s.bestOf||1;s.perTeam=s.perTeam||0;s.fee=s.fee??300;s.p1=s.p1??2000;s.p2=s.p2??1000;return s}
   return {teams:[],mode:'league',bestOf:1,started:false,matches:[],waiting:[],fee:300,p1:2000,p2:1000}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){
+  S.ts=Date.now();const j=JSON.stringify(S);
+  try{localStorage.setItem(KEY,j)}catch(e){}
+  try{sessionStorage.setItem(KEY,j)}catch(e){}
+  try{window.name='BT:'+j}catch(e){}
+}
+window.addEventListener('pagehide',()=>{try{save()}catch(e){}});
 const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const T=id=>S.teams.find(t=>t.id===id);
