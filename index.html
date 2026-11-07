@@ -189,10 +189,11 @@ function spread(list,hist){
 function roundName(r){const c=S.matches.filter(m=>m.round===r).length;return c===1?'Final':c===2?'Semi-finals':c===4?'Quarter-finals':'Round '+r}
 
 /* ---------- Teams ---------- */
-function addTeam(paid){
+function addTeam(){
   const n=document.getElementById('tn').value.trim(),p1=document.getElementById('p1').value.trim(),p2=document.getElementById('p2').value.trim();
   if(!n||!p1||!p2){alert('Enter team name and both player names.');return}
-  const t={id:uid(),name:n,p1,p2,paid:paid===true};S.teams.push(t);if(S.started)joinLate(t);save();render();
+  if(!confirm('Has this team paid the entry fee of ₹'+S.fee+'? A team is added only after payment.'))return;
+  const t={id:uid(),name:n,p1,p2,paid:true};S.teams.push(t);if(S.started)joinLate(t);save();render();
   setTimeout(()=>document.getElementById('tn').focus(),0);
 }
 function editTeam(id,f,v){const t=T(id);if(t){t[f]=v.trim()||t[f];save()}}
@@ -274,7 +275,7 @@ function moneyCard(){
   const f=(k,l)=>`<label class="fld">${l}<input type="number" min="0" inputmode="numeric" value="${S[k]}" oninput="setMoney('${k}',this.value)"></label>`;
   return `<div class="card"><h2>Entry fee &amp; prizes</h2><p class="note" style="margin:0 0 8px">Tap any amount to change it. It saves and updates instantly, even after the tournament starts.</p>
   <div class="row">${f('fee','Entry fee per team (₹)')}${f('p1','1st prize (₹)')}${f('p2','2nd prize (₹)')}</div>
-  <div id="msum">${moneySum()}</div><p class="note">Tick "Paid" on each team when the fee is received.</p></div>`;
+  <div id="msum">${moneySum()}</div><p class="note">Teams are added only after they pay the entry fee.</p></div>`;
 }
 function result(){
   if(S.mode==='league'&&S.matches.some(m=>m.po)){const f0=S.matches.find(m=>m.po==='final');return f0&&f0.done?[T(f0.winner),T(f0.winner===f0.a?f0.b:f0.a)]:null}
@@ -502,7 +503,8 @@ function vTeams(){
   <div class="row"><input id="tn" placeholder="Team name">
   <input id="p1" placeholder="Player 1">
   <input id="p2" placeholder="Player 2" onkeydown="if(event.key==='Enter')addTeam()">
-  <button class="btn" onclick="addTeam()">Add team</button><button class="btn" style="background:#b8860b" onclick="addTeam(true)">💰 Paid &amp; add team</button></div>
+  <button class="btn" style="background:#b8860b" onclick="addTeam()">💰 Paid &amp; add team</button></div>
+  <p class="note">A team is added only after it pays the entry fee.</p>
   ${lock?'<p class="note">Tournament is running. A new team is added to the fixtures automatically (League: plays everyone. Knockout: joins the current round).</p>':''}</div>`;
   h+=`<div class="card"><h2>Teams (${S.teams.length})</h2>`;
   if(!S.teams.length)h+=`<div class="empty">No teams yet. Add the first team above.</div>`;
@@ -511,7 +513,7 @@ function vTeams(){
     <input value="${esc(t.name)}" aria-label="Team name" onchange="editTeam('${t.id}','name',this.value)">
     <input value="${esc(t.p1)}" aria-label="Player 1" onchange="editTeam('${t.id}','p1',this.value)">
     <input value="${esc(t.p2)}" aria-label="Player 2" onchange="editTeam('${t.id}','p2',this.value)">
-    <label class="paid"><input type="checkbox" ${t.paid?'checked':''} onchange="setPaid('${t.id}',this.checked)"> Paid</label><button class="btn del" onclick="delTeam('${t.id}')" ${t.out?'disabled':''}>${t.out?'Withdrawn':lock?'Withdraw':'Remove'}</button></div>`;
+    ${t.paid?'<span class="paid">✅ Paid</span>':`<label class="paid"><input type="checkbox" onchange="setPaid('${t.id}',this.checked)"> Paid</label>`}<button class="btn del" onclick="delTeam('${t.id}')" ${t.out?'disabled':''}>${t.out?'Withdrawn':lock?'Withdraw':'Remove'}</button></div>`;
   });
   h+=`</div>`;
   h+=moneyCard()+`<div class="card"><h2>Tournament type</h2><div class="mode">
