@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Badminton Tournament Scorer</title>
+<style>
+:root{--bg:#f3f6f1;--card:#fff;--ink:#14281d;--mute:#5d6f64;--line:#d9e2da;--court:#0f5132;--court2:#1b7a4b;--shuttle:#f2c230;--red:#c0392b;--blue:#2166b0}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1a13;--card:#16261c;--ink:#e8f0ea;--mute:#9bb0a2;--line:#2a4032;--court:#2e9e68;--court2:#3cb97c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.45}
+header{background:#0f5132;color:#fff;padding:18px 16px 0;border-bottom:4px solid var(--shuttle)}
+header h1{margin:0 0 2px;font-size:1.5rem;letter-spacing:.3px}
+header p{margin:0 0 12px;opacity:.8;font-size:.9rem}
+nav{display:flex;gap:4px;max-width:960px;margin:0 auto}
+nav button{flex:1;background:transparent;color:#cfe6d8;border:0;padding:12px 6px;font:inherit;font-weight:700;cursor:pointer;border-radius:10px 10px 0 0}
+nav button.on{background:var(--bg);color:var(--court)}
+.wrap{max-width:960px;margin:0 auto}
+main{max-width:960px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+h2{margin:0 0 10px;font-size:1.15rem}
+h3{margin:14px 0 8px;font-size:1rem;color:var(--mute)}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-width:0}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--shuttle);outline-offset:1px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;background:var(--court);color:#fff}
+.btn.alt{background:transparent;color:var(--court);border:1px solid var(--court)}
+.btn.del{background:transparent;color:var(--red);border:1px solid var(--red);padding:7px 10px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>input{flex:1 1 140px}
+.team{display:grid;grid-template-columns:34px 1.3fr 1fr 1fr auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.team:first-of-type{border-top:0}
+.team .n{font-weight:800;color:var(--mute);text-align:center}
+.team input{width:100%}
+@media(max-width:640px){.team{grid-template-columns:28px 1fr 1fr}.team input:nth-of-type(1){grid-column:2/4}.team .btn,.team .paid{grid-column:2/4}}
+.mode{display:flex;gap:10px;flex-wrap:wrap}
+.mode label{flex:1 1 200px;border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.mode input{display:none}
+.mode label.sel{border-color:var(--court);background:color-mix(in srgb,var(--court) 10%,transparent)}
+.mode b{display:block}.mode span{font-size:.85rem;color:var(--mute)}
+.m{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;background:var(--card)}
+.m.live{border-color:var(--shuttle);box-shadow:0 0 0 2px var(--shuttle)}
+.mh{display:flex;justify-content:space-between;font-size:.8rem;color:var(--mute);margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.tag{padding:2px 8px;border-radius:99px;font-weight:700;font-size:.75rem;background:var(--line);color:var(--ink)}
+.tag.live{background:var(--shuttle);color:#3a2e00}.tag.done{background:var(--court);color:#fff}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.side{text-align:center}
+.side .nm{font-weight:800}.side .pl{font-size:.8rem;color:var(--mute)}
+.side.win .nm::after{content:" 🏆"}
+.sc{font-size:2.6rem;font-weight:900;line-height:1;margin:6px 0;font-variant-numeric:tabular-nums}
+.side.a .sc{color:var(--red)}.side.b .sc{color:var(--blue)}
+.ctl{display:flex;gap:6px;justify-content:center}
+.ctl button{width:46px;height:40px;font-size:1.3rem;font-weight:800;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.ctl button.p{background:var(--court);color:#fff;border-color:var(--court)}
+.mid{font-weight:800;color:var(--mute)}
+.hope{display:inline-block;background:var(--shuttle);color:#3a2e00;font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:99px;margin-top:4px}
+.gl{margin-top:10px;font-size:.85rem;color:var(--mute);text-align:center}
+.act{margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.empty{text-align:center;color:var(--mute);padding:24px 8px}
+.champ{background:linear-gradient(90deg,#f2c230,#ffe08a);color:#3a2e00;text-align:center;font-size:1.2rem;font-weight:900;padding:14px;border-radius:12px;margin-bottom:14px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:620px}
+th,td{padding:10px 8px;text-align:center;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{font-size:.8rem;color:var(--mute)}
+td.l,th.l{text-align:left}
+tbody tr:nth-child(1) td:first-child{background:var(--shuttle);color:#3a2e00;font-weight:900}
+.pos{color:var(--court);font-weight:700}.neg{color:var(--red);font-weight:700}
+.note{font-size:.8rem;color:var(--mute);margin-top:8px}
+.bar{background:var(--shuttle);color:#3a2e00;border-radius:12px;padding:14px;margin-bottom:14px;display:grid;gap:6px}
+.bar .btn{background:#14281d;color:#fff}.bar .btn.alt{background:transparent;color:#3a2e00;border:1px solid #3a2e00}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px;z-index:99}
+.modal[hidden]{display:none}.modal .box{background:var(--card);border-radius:14px;padding:20px;max-width:380px;width:100%}
+.modal .row .btn{flex:1}
+.fld{display:grid;gap:4px;font-size:.8rem;color:var(--mute);flex:1 1 130px}.fld input{width:100%}
+.paid{display:flex;gap:6px;align-items:center;font-weight:700;font-size:.85rem}.paid input{width:auto}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🏸 Badminton Tournament Scorer</h1>
+    <p>Teams of 2 · 14 points a game · 13 is Hope Point</p>
+    <nav id="nav">
+      <button data-t="teams" class="on">Teams</button>
+      <button data-t="matches">Matches</button>
+      <button data-t="table">Points Table</button>
+    </nav>
+  </div>
+</header>
+<main id="app"></main>
+<div id="modal" class="modal" hidden><div class="box"><h2>Tournament in progress</h2>
+<p>Continue to keep all scores and fixtures. Exit clears the fixtures and scores and takes you back to the Shuffle &amp; start page (teams are kept).</p>
+<div class="row"><button class="btn" onclick="closeModal()">Continue</button><button class="btn del" onclick="exitToSetup()">Exit</button></div></div></div>
+
+<script>
+const MAX=14, KEY='bt_state_v1';
+let S=load(), tab='teams';
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s){s.waiting=s.waiting||[];s.bestOf=s.bestOf||1;s.perTeam=s.perTeam||0;s.fee=s.fee??300;s.p1=s.p1??2000;s.p2=s.p2??1000;return s}}catch(e){}
+  return {teams:[],mode:'league',bestOf:1,started:false,matches:[],waiting:[],fee:300,p1:2000,p2:1000}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const T=id=>S.teams.find(t=>t.id===id);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const need=()=>S.bestOf===3?2:1;
+function roundName(r){const c=S.matches.filter(m=>m.round===r).length;return c===1?'Final':c===2?'Semi-finals':c===4?'Quarter-finals':'Round '+r}
+
+/* ---------- Teams ---------- */
+function addTeam(){
+  const n=document.getElementById('tn').value.trim(),p1=document.getElementById('p1').value.trim(),p2=document.getElementById('p2').value.trim();
+  if(!n||!p1||!p2){alert('Enter team name and both player names.');return}
+  const t={id:uid(),name:n,p1,p2};S.teams.push(t);if(S.started)joinLate(t);save();render();
+  setTimeout(()=>document.getElementById('tn').focus(),0);
+}
+function editTeam(id,f,v){const t=T(id);if(t){t[f]=v.trim()||t[f];save()}}
+function joinLate(t){
+  const others=S.teams.filter(x=>x.id!==t.id&&!x.out);
+  if(S.mode==='league'){
+    const pick=S.perTeam&&S.perTeam<others.length?shuffle(others).slice(0,S.perTeam):others;
+    const nm=pick.map(o=>({id:uid(),round:1,a:t.id,b:o.id,games:[[0,0]],done:false,winner:null}));
+    const keep=S.matches.filter(m=>m.done||m.confirmed||m.games.some(g=>g[0]+g[1]>0));
+    const up=S.matches.filter(m=>!keep.includes(m));
+    S.matches=[...keep,...shuffle([...up,...nm])];
+  }else{
+    S.waiting.push(t.id);
+    if(S.waiting.length>=2){
+      const last=Math.max(...S.matches.map(m=>m.round));
+      const [a,b]=S.waiting.splice(0,2);
+      S.matches.push({id:uid(),round:last,a,b,games:[[0,0]],done:false,winner:null});
+    }
+    advance();
+  }
+}
+function delTeam(id){
+  const t=T(id);if(!t)return;
+  if(!S.started){if(confirm('Remove this team?')){S.teams=S.teams.filter(x=>x.id!==id);save();render()}return}
+  if(!confirm('Withdraw this team? Their unfinished matches will be removed.'))return;
+  t.out=true;S.waiting=S.waiting.filter(x=>x!==id);
+  if(S.mode==='league')S.matches=S.matches.filter(m=>m.done||m.bye||(m.a!==id&&m.b!==id));
+  else{
+    S.matches.forEach(m=>{if(!m.done&&(m.a===id||m.b===id)){const o=m.a===id?m.b:m.a;m.a=o;m.b=null;m.bye=true;m.done=true;m.winner=o;m.games=[]}});
+    advance();
+  }
+  save();render();
+}
+function nextBar(){
+  const m=S.matches.find(x=>!x.done&&!x.bye&&!x.confirmed&&!x.games.some(g=>g[0]+g[1]>0));
+  if(!m)return'';
+  const a=T(m.a),b=T(m.b);
+  return `<div class="bar"><b>Next match: ${esc(a.name)} vs ${esc(b.name)}</b>
+  <div>${esc(a.p1)} &amp; ${esc(a.p2)} · ${esc(b.p1)} &amp; ${esc(b.p2)}</div>
+  <div>Have both teams come? Shall we start?</div>
+  <div class="row"><button class="btn" onclick="confirmM('${m.id}')">Yes, start</button><button class="btn alt" onclick="later('${m.id}')">No, play at last</button></div></div>`;
+}
+function confirmM(id){S.matches.find(x=>x.id===id).confirmed=true;save();render()}
+function later(id){const i=S.matches.findIndex(x=>x.id===id);const[m]=S.matches.splice(i,1);S.matches.push(m);save();render()}
+function goAdd(){tab='teams';render();setTimeout(()=>document.getElementById('tn').focus(),0)}
+function closeModal(){document.getElementById('modal').hidden=true}
+function exitToSetup(){S.started=false;S.matches=[];S.waiting=[];S.teams=S.teams.filter(t=>!t.out);save();tab='teams';closeModal();render()}
+function setMode(m){if(S.started)return;S.mode=m;save();render()}
+function setBest(v){if(S.started)return;S.bestOf=+v;save()}
+function setMoney(k,v){S[k]=Math.max(0,+v||0);save();render()}
+function setPaid(id,v){const t=T(id);if(t){t.paid=v;save();render()}}
+function moneyCard(){
+  const n=S.teams.length,paid=S.teams.filter(t=>t.paid).length;
+  const exp=n*S.fee,col=paid*S.fee,pr=S.p1+S.p2;
+  const f=(k,l)=>`<label class="fld">${l}<input type="number" min="0" inputmode="numeric" value="${S[k]}" onchange="setMoney('${k}',this.value)"></label>`;
+  return `<div class="card"><h2>Entry fee &amp; prizes</h2><div class="row">${f('fee','Entry fee per team (₹)')}${f('p1','1st prize (₹)')}${f('p2','2nd prize (₹)')}</div>
+  <p class="note">Teams: ${n} · Fee to collect: ₹${exp} · Collected (${paid} paid): ₹${col} · Pending: ₹${exp-col}</p>
+  <p class="note">Prizes: ₹${pr} · Balance after prizes (collected − prizes): <b class="${col-pr>=0?'pos':'neg'}">₹${col-pr}</b>. Tick "Paid" on each team when the fee is received.</p></div>`;
+}
+function result(){
+  if(!S.started||!S.matches.length||S.waiting.length||S.matches.some(m=>!m.done))return null;
+  if(S.mode==='knockout'){
+    const c=champion();if(!c)return null;
+    const last=Math.max(...S.matches.map(m=>m.round)),f=S.matches.find(m=>m.round===last);
+    return [c,T(f.winner===f.a?f.b:f.a)];
+  }
+  const st=standings();return [st[0].t,st[1]?st[1].t:null];
+}
+function prizeBanner(){
+  const r=result();if(!r)return'';
+  const line=(md,t,amt)=>t?`<div>${md} ${esc(t.name)} (${esc(t.p1)} &amp; ${esc(t.p2)}) wins ₹${amt}</div>`:'';
+  return `<div class="champ">${line('🥇',r[0],S.p1)}${line('🥈',r[1],S.p2)}</div>`;
+}
+function setPer(v){if(S.started)return;S.perTeam=+v;save()}
+function perSel(lock){
+  const n=S.teams.length;if(n<2)return'<p class="note">Add teams to see the match options.</p>';
+  let o='';
+  for(let k=1;k<=Math.min(n-2,6);k++)o+=`<option value="${k}" ${S.perTeam===k?'selected':''}>Each team plays ${k} match${k>1?'es':''}</option>`;
+  o+=`<option value="0" ${!S.perTeam||S.perTeam>=n-1?'selected':''}>Full league (each team plays ${n-1})</option>`;
+  return `<div class="row" style="margin-top:12px"><label for="pt">Matches per team</label><select id="pt" onchange="setPer(this.value)" ${lock?'disabled':''}>${o}</select></div>`;
+}
+
+/* ---------- Fixtures ---------- */
+function makeRound(ids,round){
+  const q=shuffle(ids),out=[];
+  if(q.length%2){out.push({id:uid(),round,a:q.pop(),b:null,games:[],done:true,winner:null,bye:true});out[0].winner=out[0].a}
+  for(let i=0;i<q.length;i+=2)out.push({id:uid(),round,a:q[i],b:q[i+1],games:[[0,0]],done:false,winner:null});
+  return out;
+}
+function startTournament(){
+  if(S.teams.length<2){alert('Add at least 2 teams.');return}
+  const ids=S.teams.map(t=>t.id);
+  if(S.mode==='league'){
+    const n=ids.length,k=(S.perTeam&&S.perTeam<n-1)?S.perTeam:n-1;
+    const t=shuffle(ids);if(t.length%2)t.push(null);
+    const N=t.length,list=[];
+    for(let r=0;r<k;r++){
+      for(let i=0;i<N/2;i++){const a=t[i],b=t[N-1-i];if(a&&b)list.push({id:uid(),round:1,a,b,games:[[0,0]],done:false,winner:null})}
+      t.splice(1,0,t.pop());
+    }
+    S.matches=list;
+  }else S.matches=makeRound(ids,1);
+  S.started=true;save();tab='matches';render();
+}
+function resetAll(){
+  if(!confirm('Reset all scores and fixtures? Teams are kept.'))return;
+  S.started=false;S.matches=[];S.waiting=[];S.teams=S.teams.filter(t=>!t.out);save();tab='teams';render();
+}
+function clearAll(){if(confirm('Delete EVERYTHING including teams?')){S={teams:[],mode:'league',bestOf:1,started:false,matches:[],waiting:[],fee:300,p1:2000,p2:1000};save();tab='teams';render()}}
+function advance(){
+  if(S.mode!=='knockout'||!S.matches.length)return;
+  const last=Math.max(...S.matches.map(m=>m.round));
+  const r=S.matches.filter(m=>m.round===last);
+  if(!r.every(m=>m.done))return;
+  const w=r.map(m=>m.winner).filter(Boolean).concat(S.waiting);
+  if(w.length>1){S.waiting=[];S.matches.push(...makeRound(w,last+1))}
+}
+const champion=()=>{
+  if(S.mode!=='knockout'||!S.matches.length)return null;
+  const last=Math.max(...S.matches.map(m=>m.round)),r=S.matches.filter(m=>m.round===last);
+  return r.length===1&&r[0].done&&!S.waiting.length?T(r[0].winner):null;
+};
+
+/* ---------- Scoring ---------- */
+function gamesWon(m){let a=0,b=0;m.games.forEach(g=>{if(g[0]>=MAX)a++;else if(g[1]>=MAX)b++});return[a,b]}
+function score(id,side,d){
+  const m=S.matches.find(x=>x.id===id);if(!m||m.done)return;
+  const g=m.games[m.games.length-1];
+  g[side]=Math.max(0,Math.min(MAX,g[side]+d));
+  if(g[side]===MAX){
+    const w=gamesWon(m);
+    if(w[side]>=need()){m.done=true;m.winner=side?m.b:m.a;advance()}
+    else m.games.push([0,0]);
+  }
+  save();render();
+}
+function reopen(id){
+  const m=S.matches.find(x=>x.id===id);
+  if(S.matches.some(x=>x.round>m.round)){alert('Next round already started. Reset to change this result.');return}
+  m.done=false;m.winner=null;
+  const g=m.games[m.games.length-1];
+  if(g[0]>=MAX||g[1]>=MAX){const s=g[0]>=MAX?0:1;g[s]=MAX-1}
+  save();render();
+}
+function resetMatch(id){
+  const m=S.matches.find(x=>x.id===id);
+  if(S.matches.some(x=>x.round>m.round)){alert('Next round already started.');return}
+  if(!confirm('Clear scores of this match?'))return;
+  m.games=[[0,0]];m.done=false;m.winner=null;save();render();
+}
+
+/* ---------- Points table ---------- */
+function standings(){
+  const r={};S.teams.forEach(t=>r[t.id]={t,P:0,W:0,L:0,PF:0,PA:0,G:0});
+  S.matches.forEach(m=>{
+    if(m.bye||!m.done)return;
+    [[m.a,0],[m.b,1]].forEach(([id,s])=>{
+      const x=r[id];if(!x)return;
+      x.P++;m.winner===id?x.W++:x.L++;
+      m.games.forEach(g=>{if(g[0]+g[1]===0)return;x.PF+=g[s];x.PA+=g[1-s];x.G++});
+    });
+  });
+  return Object.values(r).map(x=>({...x,PD:x.PF-x.PA,RR:x.G?(x.PF-x.PA)/x.G:0,Pts:x.W*2}))
+    .sort((a,b)=>b.Pts-a.Pts||b.RR-a.RR||b.PD-a.PD||b.PF-a.PF);
+}
+
+/* ---------- Views ---------- */
+function vTeams(){
+  const lock=S.started;
+  let h=`<div class="card"><h2>Add team</h2>
+  <div class="row"><input id="tn" placeholder="Team name">
+  <input id="p1" placeholder="Player 1">
+  <input id="p2" placeholder="Player 2" onkeydown="if(event.key==='Enter')addTeam()">
+  <button class="btn" onclick="addTeam()">Add team</button></div>
+  ${lock?'<p class="note">Tournament is running. A new team is added to the fixtures automatically (League: plays everyone. Knockout: joins the current round).</p>':''}</div>`;
+  h+=`<div class="card"><h2>Teams (${S.teams.length})</h2>`;
+  if(!S.teams.length)h+=`<div class="empty">No teams yet. Add the first team above.</div>`;
+  S.teams.forEach((t,i)=>{
+    h+=`<div class="team" style="${t.out?'opacity:.5':''}"><span class="n">${i+1}</span>
+    <input value="${esc(t.name)}" aria-label="Team name" onchange="editTeam('${t.id}','name',this.value)">
+    <input value="${esc(t.p1)}" aria-label="Player 1" onchange="editTeam('${t.id}','p1',this.value)">
+    <input value="${esc(t.p2)}" aria-label="Player 2" onchange="editTeam('${t.id}','p2',this.value)">
+    <label class="paid"><input type="checkbox" ${t.paid?'checked':''} onchange="setPaid('${t.id}',this.checked)"> Paid</label><button class="btn del" onclick="delTeam('${t.id}')" ${t.out?'disabled':''}>${t.out?'Withdrawn':lock?'Withdraw':'Remove'}</button></div>`;
+  });
+  h+=`</div>`;
+  h+=moneyCard()+`<div class="card"><h2>Tournament type</h2><div class="mode">
+  <label class="${S.mode==='league'?'sel':''}"><input type="radio" name="md" onclick="setMode('league')"><b>League match</b><span>Every team plays every other team. Fixtures are shuffled.</span></label>
+  <label class="${S.mode==='knockout'?'sel':''}"><input type="radio" name="md" onclick="setMode('knockout')"><b>Knockout match</b><span>Random draw. Lose and you are out. Odd teams get a bye.</span></label></div>
+  ${S.mode==='league'?perSel(lock):''}
+  <div class="row" style="margin-top:12px"><label for="bo">Games in each match</label>
+  <select id="bo" onchange="setBest(this.value)" ${lock?'disabled':''}>
+  <option value="1" ${S.bestOf===1?'selected':''}>1 game (first to 14 wins)</option>
+  <option value="3" ${S.bestOf===3?'selected':''}>Best of 3 (first to win 2 games)</option></select></div>
+  <div class="row" style="margin-top:14px">
+  <button class="btn" onclick="startTournament()" ${lock?'disabled':''}>Shuffle &amp; start</button>
+  <button class="btn alt" onclick="resetAll()" ${lock?'':'disabled'}>Reset fixtures</button>
+  <button class="btn del" onclick="clearAll()">Delete everything</button></div></div>`;
+  return h;
+}
+function card(m){
+  if(m.bye){const t=T(m.a);return `<div class="m"><div class="mh"><span>${roundName(m.round)}</span><span class="tag">Bye</span></div><b>${esc(t.name)}</b> goes straight to the next round.</div>`}
+  const a=T(m.a),b=T(m.b);if(!a||!b)return'';
+  const g=m.games[m.games.length-1],started=m.games.some(x=>x[0]+x[1]>0);
+  const st=m.done?'done':started?'live':'';
+  const side=(t,s,cls)=>`<div class="side ${cls} ${m.done&&m.winner===t.id?'win':''}">
+    <div class="nm">${esc(t.name)}</div><div class="pl">${esc(t.p1)} &amp; ${esc(t.p2)}</div>
+    <div class="sc">${g[s]}</div>${!m.done&&g[s]===MAX-1?'<span class="hope">Hope point</span>':''}
+    ${m.done?'':`<div class="ctl"><button onclick="score('${m.id}',${s},-1)" aria-label="minus">−</button><button class="p" onclick="score('${m.id}',${s},1)" aria-label="plus">+</button></div>`}</div>`;
+  const hist=m.games.map((x,i)=>(x[0]+x[1]>0||!m.done&&i===m.games.length-1)?`G${i+1}: ${x[0]}-${x[1]}`:'').filter(Boolean).join(' &nbsp;|&nbsp; ');
+  const w=gamesWon(m);
+  return `<div class="m ${st==='live'?'live':''}"><div class="mh"><span>${S.mode==='knockout'?roundName(m.round):'Match '+(S.matches.indexOf(m)+1)}${S.bestOf===3?' · Games '+w[0]+'-'+w[1]:''}</span>
+  <span class="tag ${st}">${m.done?'Completed':started?'Live':'Upcoming'}</span></div>
+  <div class="vs">${side(a,0,'a')}<div class="mid">VS</div>${side(b,1,'b')}</div>
+  <div class="gl">${hist}</div>
+  <div class="act">${m.done?`<button class="btn alt" onclick="reopen('${m.id}')">Edit score</button>`:''}
+  ${started?`<button class="btn del" onclick="resetMatch('${m.id}')">Clear scores</button>`:''}</div></div>`;
+}
+function vMatches(){
+  if(!S.started)return`<div class="card empty">No fixtures yet. Add teams, pick League or Knockout, then press Shuffle &amp; start.</div>`;
+  const c=champion();let h=nextBar()+`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="goAdd()">＋ Add late team</button></div>`;h+=prizeBanner();
+  if(S.mode==='knockout'){
+    h+=`<p class="note">Knockout: lose and you are out. Winners move to the next round automatically.</p>`;
+    [...new Set(S.matches.map(m=>m.round))].sort((a,b)=>b-a).forEach(r=>{
+      const ms=S.matches.filter(m=>m.round===r).sort((a,b)=>a.done-b.done);
+      h+=`<h3>${roundName(r)} (${ms.filter(m=>m.done).length}/${ms.length} done)</h3>`+ms.map(card).join('');
+    });
+    return h;
+  }
+  const up=S.matches.filter(m=>!m.done),dn=S.matches.filter(m=>m.done);
+  const cur=`<p class="note">League: each team plays the number of matches chosen on the Teams page.</p>`;
+  h+=cur+`<h3>Upcoming &amp; live (${up.length})</h3>`+(up.map(card).join('')||`<div class="empty">All matches finished.</div>`);
+  h+=`<h3>Completed (${dn.length})</h3>`+(dn.map(card).join('')||`<div class="empty">No completed matches yet.</div>`);
+  return h;
+}
+function vTable(){
+  if(!S.teams.length)return`<div class="card empty">Add teams to see the points table.</div>`;
+  const rows=standings().map((x,i)=>`<tr><td>${i+1}</td><td class="l"><b>${esc(x.t.name)}</b>${x.t.out?' <span class="tag">Withdrawn</span>':''}<div class="note" style="margin:0">${esc(x.t.p1)} &amp; ${esc(x.t.p2)}</div></td>
+  <td>${x.P}</td><td>${x.W}</td><td>${x.L}</td><td>${x.PF}</td><td>${x.PA}</td>
+  <td class="${x.PD>=0?'pos':'neg'}">${x.PD>0?'+':''}${x.PD}</td><td class="${x.RR>=0?'pos':'neg'}">${x.RR>0?'+':''}${x.RR.toFixed(2)}</td><td><b>${x.Pts}</b></td></tr>`).join('');
+  return prizeBanner()+`<div class="card"><h2>Points table</h2><div class="tw"><table><thead><tr><th>#</th><th class="l">Team</th><th>Played</th><th>Won</th><th>Lost</th><th>Pts For</th><th>Pts Against</th><th>Diff</th><th>Run Rate</th><th>Points</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="note">Win = 2 points. Run Rate = (points scored − points conceded) ÷ games played. Ranking: Points, then Run Rate, then Diff. Only completed matches count.</p></div>`;
+}
+function render(){
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+  document.getElementById('app').innerHTML=tab==='teams'?vTeams():tab==='matches'?vMatches():vTable();
+}
+document.getElementById('nav').addEventListener('click',e=>{const t=e.target.dataset.t;if(t){tab=t;render()}});
+render();
+if(S.started)document.getElementById('modal').hidden=false;
+</script>
+</body>
+</html>
