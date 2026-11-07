@@ -389,7 +389,7 @@ function resetAll(){
 function clearAll(){if(confirm('Delete EVERYTHING including teams?')){S={teams:[],mode:'league',bestOf:1,started:false,matches:[],waiting:[],fee:300,p1:2000,p2:1000};save();tab='teams';render()}}
 function mkPo(a,b,po){return{id:uid(),round:po==='semi'?2:3,po,a,b,games:[[0,0]],done:false,winner:null}}
 function playoffAdvance(force){
-  if(S.playoff===false&&!force)return;
+  if(!force)return;
   const lg=S.matches.filter(m=>!m.po);
   const po=S.matches.filter(m=>m.po);
   if(!po.length){
@@ -431,7 +431,7 @@ function semiBtn(){
 }
 function redoPlayoffs(){
   if(!confirm('Remove the semi-finals and final and pick them again from the current points table?'))return;
-  S.matches=S.matches.filter(m=>!m.po);playoffAdvance();save();render();
+  S.matches=S.matches.filter(m=>!m.po);playoffAdvance(true);save();render();
 }
 function setPlay(v){S.playoff=v;if(S.started)advance();save();render()}
 function playSel(){return `<label class="paid" style="margin-top:12px"><input type="checkbox" ${S.playoff!==false?'checked':''} onchange="setPlay(this.checked)"> Semi-final &amp; Final after the league (top 4 from the points table)</label>`}
@@ -590,15 +590,14 @@ function vScore(){
 }
 function vUpcoming(){
   if(!S.started)return noFix;
-  const nx=upNext();
   const lv=S.matches.find(m=>!m.done&&!m.bye&&(m.confirmed||m.games.some(g=>g[0]+g[1]>0)));
-  const up=S.matches.filter(m=>!m.done&&!m.bye&&!m.confirmed&&!m.games.some(g=>g[0]+g[1]>0)&&(lv||!nx||m.id!==nx.id));
-  let h=finalBtn()+(lv?liveBar(lv):nextBar())+`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="goAdd()">＋ Add late team</button><button class="btn alt" onclick="openEdit(null)">＋ Add match</button></div>`;
-  if(S.mode==='league'){
-    if(S.matches.some(m=>m.po))h+=`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="redoPlayoffs()">🔄 Re-pick Semi-final from points table</button></div>`;
-    else if(S.playoff!==false&&S.teams.length>=3)h+=`<p class="note">When all league matches are finished, the Semi-finals (1st vs 4th, 2nd vs 3rd) and the Final are picked automatically from the points table. You can also use the Move to Semi-final button under the Points table.</p>`;
-  }else h+=`<p class="note">Knockout: lose and you are out. Winners move to the next round automatically.</p>`;
-  h+=up.length?`<h3>Upcoming matches (${up.length})</h3>`+groupList(up,'up'):(nx&&!lv?'':`<div class="card empty">No upcoming matches. Check Score for live matches and Results for finished ones.</div>`);
+  const up=S.matches.filter(m=>!m.done&&!m.bye&&!m.confirmed&&!m.games.some(g=>g[0]+g[1]>0));
+  let h=finalBtn()+(lv?liveBar(lv):'')+`<div class="row" style="margin-bottom:12px"><button class="btn alt" onclick="goAdd()">＋ Add late team</button><button class="btn alt" onclick="openEdit(null)">＋ Add match</button></div>`;
+  if(up.length)h+=`<h3>Upcoming matches (${up.length})</h3>`+groupList(up,'up');
+  else if(!lv&&!finalReady()){
+    const semi=S.mode==='league'&&!S.matches.some(m=>m.po)&&S.playoff!==false&&S.teams.filter(t=>!t.out).length>=3;
+    h+=`<div class="card empty"><b>🎉 All matches are over.</b><br>${semi?'Go to the Points table and press Move to Semi-final.':'See the Results and the Points table.'}<br><br><button class="btn" onclick="tab='${semi?'table':'results'}';render();window.scrollTo(0,0)">${semi?'Go to Points table':'Go to Results'}</button></div>`;
+  }
   return h;
 }
 function vResults(){
